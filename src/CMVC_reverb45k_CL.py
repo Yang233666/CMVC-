@@ -7,7 +7,7 @@ from collections import defaultdict as ddict
 ''' *************************************** DATASET PREPROCESSING **************************************** '''
 
 
-class CMVC_Main(object):
+class CMVC_plus_Main(object):
 
     def __init__(self, args):
         self.p = args
@@ -310,6 +310,6 @@ if __name__ == '__main__':
     if not os.path.isdir(args.out_path): os.system(
         'mkdir -p ' + args.out_path)  # Create the output directory if doesn't exist
 
-    cmvc = CMVC_Main(args)  # Loading KG triples
-    cmvc.get_sideInfo()  # Side Information Acquisition
-    cmvc.embedKG()  # Learning embedding for Noun and relation phrases
+    cmvc_plus = CMVC_plus_Main(args)  # Loading KG triples
+    cmvc_plus.get_sideInfo()  # Side Information Acquisition
+    cmvc_plus.embedKG()  # Learning embedding for Noun and relation phrases

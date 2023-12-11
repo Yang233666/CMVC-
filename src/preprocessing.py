@@ -373,7 +373,7 @@ class SideInfo(object):
         Entity_linking_dict = dict()
         with open(self.p.Entity_linking_dict_loc, 'r', encoding='utf-8') as f:
             for line in f.readlines():
-                line = line.strip('\n').split('\t')  # 去掉换行符\n, 将每一行以空格为分隔符转换成列表
+                line = line.strip('\n').split('\t')
                 key, value = line[0], line[1:len(line)]
                 Entity_linking_dict.update({key: value})
         return Entity_linking_dict

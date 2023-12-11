@@ -392,5 +392,5 @@ def conv2tuple(train_inputs, train_targets, train_input_embedding, tuple_num, so
         np.random.seed(0)
         np.random.shuffle(l)
         sorted_train_inputs = list(l.reshape(-1))
-    print("Trainset generate successful!")
+    print("Training set generate successful!")
     return sorted_train_inputs, sorted_train_targets

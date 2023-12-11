@@ -260,7 +260,7 @@ class Embeddings(object):
         if show_memory:
             print('show_memory:', show_memory)
             import tracemalloc
-            tracemalloc.start(25)  # 默认25个片段，这个本质还是多次采样
+            tracemalloc.start(25)
 
         clean_ent_list, clean_rel_list = [], []
         for ent in self.side_info.ent_list: clean_ent_list.append(ent.split('|')[0])
@@ -270,7 +270,6 @@ class Embeddings(object):
         print('clean_rel_list:', type(clean_rel_list), len(clean_rel_list))
 
         ''' Intialize embeddings '''
-        '''fact view初始化'''
         if self.p.embed_init == 'crawl':
             fname1, fname2 = '../file/' + self.p.dataset + '_' + self.p.split + '/1E_init', '../file/' + self.p.dataset + '_' + self.p.split + '/1R_init'
             if not checkFile(fname1) or not checkFile(fname2):
@@ -294,7 +293,6 @@ class Embeddings(object):
         for id in self.side_info.id2ent.keys(): self.ent2embed[id] = self.E_init[id]
         for id in self.side_info.id2rel.keys(): self.rel2embed[id] = self.R_init[id]
 
-        '''种子'''
         folder = 'multi_view/relation_view'
         print('folder:', folder)
         folder_to_make = '../file/' + self.p.dataset + '_' + self.p.split + '/' + folder + '/'
@@ -473,7 +471,6 @@ class Embeddings(object):
             self.context_view_embed = list(self.BERT_CLS)
         print('self.relation_view_embed:', len(self.relation_view_embed))
         print('self.context_view_embed:', len(self.context_view_embed))
-
 
         min_loss_BD = 1e10
         best_labels = None

@@ -131,16 +131,16 @@ class CMVC_Main(object):
         fname2 = self.p.out_path + self.p.file_relEmbed
 
         if 'NYTimes2018' in args.dataset:
-            fname = '../file/' + self.p.dataset + '/cesi_clust2ent'
+            fname = '../file/' + self.p.dataset + '/cmvc_plus_clust2ent'
             if os.path.exists(fname):
-                cesi_clust2ent = pickle.load(open(fname, 'rb'))
-                cesi_ent2clust = invertDic(cesi_clust2ent, 'm2os')
-                print('cesi_clust2ent:', type(cesi_clust2ent), len(cesi_clust2ent))
-                print('cesi_ent2clust:', type(cesi_ent2clust), len(cesi_ent2clust))
+                cmvc_plus_clust2ent = pickle.load(open(fname, 'rb'))
+                cmvc_plus_ent2clust = invertDic(cmvc_plus_clust2ent, 'm2os')
+                print('cmvc_plus_clust2ent:', type(cmvc_plus_clust2ent), len(cmvc_plus_clust2ent))
+                print('cmvc_plus_ent2clust:', type(cmvc_plus_ent2clust), len(cmvc_plus_ent2clust))
                 self.true_ent2clust = {}
                 for trp in self.triples_list:
                     sub_u, sub = trp['triple_unique'][0], trp['triple'][0]
-                    self.true_ent2clust[sub_u] = cesi_ent2clust[self.side_info.ent2id[sub]]
+                    self.true_ent2clust[sub_u] = cmvc_plus_ent2clust[self.side_info.ent2id[sub]]
                 self.true_clust2ent = invertDic(self.true_ent2clust, 'm2os')
                 print('self.true_clust2ent:', len(self.true_clust2ent))
                 print('self.true_ent2clust:', len(self.true_ent2clust))
