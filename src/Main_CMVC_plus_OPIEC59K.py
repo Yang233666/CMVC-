@@ -168,8 +168,8 @@ class CMVC_plus_Main(object):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description='CMVC+: A Multi-View Clustering Framework for Open Knowledge Base Canonicalization via Contrastive Learning')
-    parser.add_argument('-data', dest='dataset', default='OPIEC59k_CL', help='Dataset to run CMVC+ on')
-    parser.add_argument('-split', dest='split', default='test', help='Dataset split for evaluation')
+    parser.add_argument('-data', dest='dataset', default='OPIEC59k', help='Dataset to run CMVC+ on')
+    parser.add_argument('-split', dest='split', default='CL_test', help='Dataset split for evaluation')
     parser.add_argument('-data_dir', dest='data_dir', default='../data', help='Data directory')
     parser.add_argument('-out_dir', dest='out_dir', default='../output', help='Directory to store CMVC+ output')
     parser.add_argument('-reset', dest="reset", action='store_true', default=True,
