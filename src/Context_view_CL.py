@@ -13,7 +13,7 @@ import faiss
 from multiprocessing import Process
 
 
-def simcse_sup_loss(y_pred, tuple_num=3, tau=0.05, device=1):
+def contrastive_loss(y_pred, tuple_num=3, tau=0.05, device=1):
     y_true = torch.arange(y_pred.shape[0]).cuda(device)
     use_row = torch.where(y_true % tuple_num == 0)[0].unsqueeze(1)
     use_row = torch.cat([use_row, use_row + 1], dim=1).reshape(-1)
@@ -215,7 +215,7 @@ class BERT_Model(Process):
             for i in range(batch_count):
                 optimizer.zero_grad()
                 cls_output, mlp_output = sim_sce_model(batch_train_inputs[i], self.p.context_cuda)
-                loss = simcse_sup_loss(mlp_output, self.tuple_num, 0.05, device=self.p.context_cuda)
+                loss = contrastive_loss(mlp_output, self.tuple_num, 0.05, device=self.p.context_cuda)
                 loss.backward()
                 optimizer.step()
                 avg_epoch_loss += loss.item()

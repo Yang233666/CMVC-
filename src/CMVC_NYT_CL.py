@@ -162,7 +162,7 @@ class CMVC_Main(object):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-        description='CMVC+: A Multi-View Clustering Framework for Open Knowledge Base Canonicalization via Contrastive Learning)
+        description='CMVC+: A Multi-View Clustering Framework for Open Knowledge Base Canonicalization via Contrastive Learning')
     parser.add_argument('-data', dest='dataset', default='NYTimes2018_CL', help='Dataset to run CMVC+ on')
     parser.add_argument('-split', dest='split', default='newyorktimes_openie_arts.json', help='Dataset split for evaluation')
     parser.add_argument('-data_dir', dest='data_dir', default='../data', help='Data directory')
@@ -271,9 +271,6 @@ if __name__ == '__main__':
     parser.add_argument('-num_canopy', dest='num_canopy', default=1, type=int,
                         help='Number of caponies while clustering')
     parser.add_argument('-true_seed_num', dest='true_seed_num', default=2361, type=int)
-    parser.add_argument('--use_Valid_data', default=False)
-    parser.add_argument('--use_GLADIS', default=False)
-
     args = parser.parse_args()
 
     if 'NYTimes2018' in args.dataset:

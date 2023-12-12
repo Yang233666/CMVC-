@@ -188,43 +188,10 @@ def totol_cluster2pair(cluster_list):
     return seed_pair_list
 
 
-def get_best_f1(p, side_info, true_ent2clust, true_clust2ent, fname, threshold=None):
-    print(fname)
-    max_F1, max_i = 0, 0
-    embedding = pickle.load(open(fname, 'rb'))[:2138]
-    if threshold is not None:
-        labels, clusters_center = HAC_getClusters(p, embedding, threshold, False,
-                                                  threshold_or_cluster='threshold')
-        cluster_predict_list = list(labels)
-        ave_prec, ave_recall, ave_f1, macro_prec, micro_prec, pair_prec, macro_recall, micro_recall, \
-        pair_recall, macro_f1, micro_f1, pair_f1, model_clusters, model_Singletons, gold_clusters, gold_Singletons \
-            = cluster_test(p, side_info, cluster_predict_list, true_ent2clust,
-                           true_clust2ent, False)
-        print(ave_f1)
-        return ave_f1
-    else:
-        for i in range(300, 350, 1):
-            cluster_threshold_real = i / 1000
-            print('cluster_threshold_real:', cluster_threshold_real)
-            labels, clusters_center = HAC_getClusters(p, embedding, cluster_threshold_real, False,
-                                                      threshold_or_cluster='threshold')
-            cluster_predict_list = list(labels)
-            ave_prec, ave_recall, ave_f1, macro_prec, micro_prec, pair_prec, macro_recall, micro_recall, \
-            pair_recall, macro_f1, micro_f1, pair_f1, model_clusters, model_Singletons, gold_clusters, gold_Singletons \
-                = cluster_test(p, side_info, cluster_predict_list, true_ent2clust,
-                               true_clust2ent, False)
-            if ave_f1 > max_F1:
-                max_F1 = ave_f1
-                max_i = i
-        print(max_i, max_F1)
-        return max_F1
-
-
 class Embeddings(object):
     """
     Learns embeddings for NPs and relation phrases
     """
-
     def __init__(self, params, side_info, true_ent2clust, true_clust2ent, sub_uni2triple_dict=None,
                  triple_list=None):
         self.p = params
@@ -384,7 +351,7 @@ class Embeddings(object):
         print()
         p1, p2 = None, None
         '''fact view train'''
-        self.model_training_time =0
+        self.model_training_time = 0
         if self.p.use_Embedding_model:
             fname = '../file/' + self.p.dataset + '_' + self.p.split + '/' + 'multi_view/relation_view/'
             fname1 = fname + 'entity_mlp_%d' % self.model_training_time

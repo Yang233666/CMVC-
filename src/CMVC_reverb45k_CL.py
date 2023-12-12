@@ -285,8 +285,6 @@ if __name__ == '__main__':
     parser.add_argument('-num_canopy', dest='num_canopy', default=1, type=int,
                         help='Number of caponies while clustering')
     parser.add_argument('-true_seed_num', dest='true_seed_num', default=2361, type=int)
-    parser.add_argument('--use_Valid_data', default=False)
-    parser.add_argument('--use_GLADIS', default=False)
     args = parser.parse_args()
 
     # if args.name == None: args.name = args.dataset + '_' + args.split + '_' + time.strftime(

@@ -396,21 +396,6 @@ class Train_Embedding_Model(Process):
                     KGEModel.log_metrics(self.p, 'Training average', step, metrics)
                     l_list.append(metrics['loss'])
                     training_logs = []
-                """
-                if step > 0 and step % self.p.turn_to_seed == 0:
-                    with torch.no_grad():
-                        entity_mlp = kge_model(torch.arange(0, kge_model.nentity, dtype=torch.int).cuda(),
-                                               'cl_np').detach().cpu().numpy()
-                        relation_mlp = kge_model(torch.arange(0, kge_model.nrelation, dtype=torch.int).cuda(),
-                                                 'cl_rp').detach().cpu().numpy()
-
-                    pickle.dump(entity_mlp, open(fname + 'entity_mlp_%d_%d' % (training_time, step), 'wb'))
-                    pickle.dump(relation_mlp, open(fname + 'relation_mlp_%d_%d' % (training_time, step), 'wb'))
-                    # pickle.dump(kge_model.entity_embedding.detach().cpu().numpy(),
-                    #             open(fname + 'entity_embedding_%d_%d' % (training_time, step), 'wb'))
-                    # pickle.dump(kge_model.relation_embedding.detach().cpu().numpy(),
-                    #             open(fname + 'relation_embedding_%d_%d' % (training_time, step), 'wb'))
-                    """
 
         self.entity_embedding = kge_model.entity_embedding.detach().cpu().numpy()
         self.relation_embedding = kge_model.relation_embedding.detach().cpu().numpy()

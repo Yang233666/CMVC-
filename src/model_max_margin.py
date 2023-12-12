@@ -22,13 +22,7 @@ def hinge_loss(positive_score, negative_score, gamma, show=False):
     max_err = err.clamp(0)
     return max_err
 
-
-def BCE_loss(input, lable, gamma):
-    loss = lable*torch.log(input) + (1-lable)*torch.log(gamma-input)
-    return loss
-
-
-def simcse_sup_loss(y_pred: 'tensor', tuple_num=3, tau=0.05, device=0) -> 'tensor':
+def contrastive_loss(y_pred: 'tensor', tuple_num=3, tau=0.05, device=0) -> 'tensor':
     y_true = torch.arange(y_pred.shape[0]).cuda(device)
     use_row = torch.where(y_true % tuple_num == 0)[0].unsqueeze(1)
     use_row = torch.cat([use_row, use_row + 1], dim=1).reshape(-1)
@@ -40,40 +34,6 @@ def simcse_sup_loss(y_pred: 'tensor', tuple_num=3, tau=0.05, device=0) -> 'tenso
     sim = sim / tau
     loss = F.cross_entropy(sim, y_true)
     return torch.mean(loss)
-
-
-class discriminator(nn.Module):
-    def __init__(self, dim):
-        super().__init__()
-        self.model = torch.nn.Sequential(
-            torch.nn.Linear(dim*2, dim*2),
-            torch.nn.BatchNorm1d(dim*2),
-            torch.nn.ReLU(inplace=True),
-            torch.nn.Dropout(p=0.5),
-            torch.nn.Linear(dim*2, 1),
-        )
-        self.model[0].weight = nn.Parameter(torch.eye(self.model[0].weight.shape[0], self.model[0].weight.shape[1]))
-        self.model[0].bias = nn.Parameter(torch.zeros(self.model[0].bias.shape))
-        self.model[-1].weight = nn.Parameter(torch.eye(self.model[-1].weight.shape[0], self.model[-1].weight.shape[1]))
-        self.model[-1].bias = nn.Parameter(torch.zeros(self.model[-1].bias.shape))
-
-    def forward(self, data):
-        return self.model(data)
-
-    @staticmethod
-    def train_epoc(model, loss_fn, opti, seed_dataloader):
-        ave_loss = 0
-        model.train()
-        for data, lable in seed_dataloader:
-            data = data.cuda()
-            lable = lable.cuda().type(torch.float32).reshape(-1,1)
-            opti.zero_grad()
-            pred = model(data)
-            loss = loss_fn(pred, lable)
-            ave_loss += loss
-            loss.backward()
-            opti.step()
-        return ave_loss
 
 
 class KGEModel(nn.Module):
@@ -421,7 +381,7 @@ class KGEModel(nn.Module):
         step_size = args.fact_step_size*(args.fact_neg_num+2)
 
         for i in range(math.ceil(np_embedding.shape[0]/step_size)):
-            loss_cl += simcse_sup_loss(np_embedding[step_size*i:step_size*(i+1), :], tuple_num=(args.fact_neg_num+2), device=args.fact_cuda)
+            loss_cl += contrastive_loss(np_embedding[step_size*i:step_size*(i+1), :], tuple_num=(args.fact_neg_num+2), device=args.fact_cuda)
 
         rp_train = []
         rp_sample = positive_sample[:, 1]
@@ -430,7 +390,7 @@ class KGEModel(nn.Module):
                 rp_train.append([a, b] + rp_seed_neg_dict[a])
         rp_embedding = model(torch.tensor(rp_train, dtype=torch.int).cuda(args.fact_cuda) if args.cuda else torch.tensor(rp_train, dtype=torch.int),  'cl_rp')
         for i in range(math.ceil(rp_embedding.shape[0]/(step_size))):
-            loss_cl += simcse_sup_loss(rp_embedding[step_size*i:step_size*(i+1), :], tuple_num=(args.fact_neg_num+2), device=args.fact_cuda)
+            loss_cl += contrastive_loss(rp_embedding[step_size*i:step_size*(i+1), :], tuple_num=(args.fact_neg_num+2), device=args.fact_cuda)
 
         if args.conbine_loss:
             loss_cl.backward()
@@ -507,7 +467,7 @@ class KGEModel(nn.Module):
         step_size = args.fact_step_size*(args.fact_neg_num+2)
 
         for i in range(math.ceil(np_embedding.shape[0]/step_size)):
-            loss_cl += simcse_sup_loss(np_embedding[step_size*i:step_size*(i+1), :], tuple_num=(args.fact_neg_num+2), device=args.fact_cuda)
+            loss_cl += contrastive_loss(np_embedding[step_size*i:step_size*(i+1), :], tuple_num=(args.fact_neg_num+2), device=args.fact_cuda)
 
         rp_train = []
         rp_sample = positive_sample[:, 1]
@@ -516,7 +476,7 @@ class KGEModel(nn.Module):
                 rp_train.append([a, b] + rp_seed_neg_dict[a])
         rp_embedding = model(torch.tensor(rp_train, dtype=torch.int).cuda(args.fact_cuda) if args.cuda else torch.tensor(rp_train, dtype=torch.int), 'cl_rp')
         for i in range(math.ceil(rp_embedding.shape[0]/(step_size))):
-            loss_cl += simcse_sup_loss(rp_embedding[step_size*i:step_size*(i+1), :], tuple_num=(args.fact_neg_num+2), device=args.fact_cuda)
+            loss_cl += contrastive_loss(rp_embedding[step_size*i:step_size*(i+1), :], tuple_num=(args.fact_neg_num+2), device=args.fact_cuda)
 
         if args.conbine_loss:
             loss_cl.backward()

@@ -118,13 +118,6 @@ def ch_cluster(X, lables, centers=None, dataset=""):
         else:
             cluster[i] = [idx]
 
-    # if len(cluster) < 50:
-    #     res = np.zeros(10)
-    # elif len(cluster) < 500:
-    #     res = np.zeros(490)
-    # else:
-    #     res = np.zeros(6700)
-
     n_cluster = 10
     if 'reverb' in dataset:
         n_cluster = 6700

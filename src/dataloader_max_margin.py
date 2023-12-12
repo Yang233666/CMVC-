@@ -6,7 +6,6 @@ from __future__ import print_function
 import torch
 from torch.utils.data import Dataset
 import numpy as np
-# np.random.seed(0)
 
 
 def seed_pair2cluster(seed_pair_list):
@@ -75,7 +74,6 @@ class TrainDataset(Dataset):
         subsampling_weight = self.count[(head, relation)] + self.count[(tail, -relation - 1)]
         subsampling_weight = torch.sqrt(1 / torch.Tensor([subsampling_weight]))
 
-
         negative_sample_list = []
         negative_sample_size = 0
 
@@ -105,8 +103,6 @@ class TrainDataset(Dataset):
             negative_sample = torch.from_numpy(negative_sample)
 
         positive_sample = torch.LongTensor(positive_sample)
-
-
         return positive_sample, negative_sample, subsampling_weight, self.mode
 
     @staticmethod
@@ -266,7 +262,6 @@ class SeedDataset(Dataset):
         Build a dictionary of true triples that will
         be used to filter these true triples for negative sampling
         '''
-
         true_head = {}
         true_tail = {}
 
@@ -312,54 +307,3 @@ class BidirectionalOneShotIterator(object):
         while True:
             for data in dataloader:
                 yield data
-
-
-class SeedpairDataset(Dataset):
-    def __init__(self, seed_pair, entity_embedding, degree, lables, data=None, lable=None):
-        cluster = {}
-        for idx, l in enumerate(lables):
-            if l in cluster:
-                cluster[l].append(idx)
-            else:
-                cluster[l] = [idx]
-
-        self.data = []
-        self.lable = []
-        seed_list = []
-        for a, b in seed_pair:
-            if a not in seed_list:
-                seed_list.append(a)
-            if b not in seed_list:
-                seed_list.append(b)
-        degree = [x for x in degree if x in seed_list]
-
-        if data is None:
-            self.data = seed_pair
-            self.lable = [1]*len(seed_pair)
-            for i in seed_list:
-                for idx, j in enumerate(degree):
-                    if (i, j) not in seed_pair:
-                        self.data.append((i,j))
-                        self.lable.append(0)
-                        degree.pop(idx)
-                        break
-        else:
-            self.data = data
-            self.lable = lable
-
-        self.entity_embedding = entity_embedding
-
-    def __getitem__(self, idx):
-        data = torch.cat([self.entity_embedding[self.data[idx][0]],
-                          self.entity_embedding[self.data[idx][1]]], dim=0)
-        return data, self.lable[idx]
-
-    def __len__(self):
-        return len(self.data)
-
-    @staticmethod
-    def collate_fn(data):
-        d = torch.stack([_[0] for _ in data], dim=0)
-        lable = torch.tensor([_[1] for _ in data], dtype=torch.int32)
-        return d, lable
-
