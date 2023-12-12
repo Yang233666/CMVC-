@@ -22,9 +22,9 @@ https://heathersherry.github.io/ICDE2019_data.html
 
 ##### Run the main code:
 
-* python CMVC_main_reverb45k.py
-* python CMVC_main_NYT.py
-* python CMVC_main_opiec.py
+* python Main_CMVC_plus_ReVerb45.py
+* python Main_CMVC_plus_NYTimes2018.py
+* python Main_CMVC_plus_OPIEC59K.py
 
 ### Contact
 
