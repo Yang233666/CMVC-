@@ -326,9 +326,6 @@ def conv2tuple(train_inputs, train_targets, train_input_embedding, tuple_num, so
     seed_sim = []
     for (key, idx_list) in seed_dict:
         if len(idx_list) > 1:
-            # for idx in idx_list:
-            #     self.sorted_train_inputs.append(self.train_inputs[idx])
-            #     self.sorted_train_targets.append(key)
             if not rand:
                 if center:
                     seed_dict_tmp = seed_dict[:key] + seed_dict[key + 1:]

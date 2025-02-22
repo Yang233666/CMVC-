@@ -159,7 +159,7 @@ class TrainDataset(Dataset):
 
 
 class SeedDataset(Dataset):
-    def __init__(self, triples, seed_pair, nentity, nrelation, negative_sample_size, mode, seed_sim, seed_only=True):
+    def __init__(self, triples, seed_pair, nentity, nrelation, negative_sample_size, mode, seed_sim):
         self.cluster_list = seed_pair2cluster(seed_pair)
         self.seed2cluster = dict()
         for key, l in self.cluster_list.items():

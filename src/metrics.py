@@ -27,7 +27,6 @@ def macroPrecision(C_clust2ele, E_ele2clust):
 
         if len(res) == 1:
             num_prec += 1
-        # else:print('res:', len(res), res)
         elif len(res) > 1:
             print('ERROR In Clustering micro!!!')
 
@@ -99,7 +98,6 @@ def pairwiseMetric(C_clust2ele, E_ele2clust, E_clust2ent):
     if num_C_pairs == 0 or num_E_pairs == 0:
         return 1e-6, 1e-6
 
-    # print( num_hit, num_C_pairs, num_E_pairs)
     return float(num_hit) / float(num_C_pairs), float(num_hit) / float(num_E_pairs)
 
 

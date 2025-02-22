@@ -6,7 +6,7 @@ from scipy.spatial.distance import pdist
 import numpy as np
 ave = True
 
-def HAC_getClusters(params, embed, cluster_threshold_real, dim_is_bert=False, threshold_or_cluster='threshold'):
+def HAC_getClusters(params, embed, cluster_threshold_real, threshold_or_cluster='threshold'):
     if isinstance(embed, list):
         embed_dim = embed[0].shape[0]
     else:
@@ -53,7 +53,6 @@ def HAC_getClusters(params, embed, cluster_threshold_real, dim_is_bert=False, th
             sim_sum = sim_matrix.sum(axis=1)
             max_num = cluster[int(np.argmax(sim_sum))]
             clusters_center[i, :] = embed[max_num]
-    # print('clusters_center:', type(clusters_center), clusters_center.shape)
     return labels, clusters_center
 
 
@@ -74,7 +73,6 @@ def cluster_test(params, side_info, cluster_predict_list, true_ent2clust, true_c
             clust2ent[cluster_id] = [sub_id]
     cesi_clust2ent = {}
     for rep, cluster in clust2ent.items():
-        # cesi_clust2ent[rep] = list(cluster)
         cesi_clust2ent[rep] = set(cluster)
     cesi_ent2clust = invertDic(cesi_clust2ent, 'm2os')
 

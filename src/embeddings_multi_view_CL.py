@@ -1,12 +1,10 @@
 import gensim, itertools, pickle, time, os
 from src.utils import cos_sim, BhattacharyyaDistance
 from src.helper import checkFile, getEmbeddings
-from src.test_performance import cluster_test, HAC_getClusters
+from src.test_performance import cluster_test
 from src.train_embedding_model import Train_Embedding_Model, pair2triples
 from src.Context_view_CL import BERT_Model
 from src.Multi_view_CH_kmeans_CL import Multi_view_SphericalKMeans, ch_cluster
-from sklearn.cluster import KMeans
-from sklearn.metrics import calinski_harabasz_score
 from sklearn.preprocessing import normalize
 import numpy as np
 

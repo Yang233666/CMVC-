@@ -10,9 +10,7 @@ from torch.utils.data import DataLoader
 from multiprocessing import Process
 
 from src.dataloader_max_margin import TrainDataset, SeedDataset, BidirectionalOneShotIterator, seed_pair2cluster
-from src.helper import checkFile
 from src.model_max_margin import KGEModel
-from src.utils import cos_sim
 
 
 def pair2triples(seed_pair_list, ent_list, ent2id, id2ent, ent2triple_id_list, trpIds, entity_embedding, cos_sim,
@@ -136,12 +134,6 @@ class Train_Embedding_Model(Process):
         nentity, nrelation = len(self.side_info.ent_list), len(self.side_info.rel_list)
         train_triples = self.side_info.trpIds
         logging.info('#train: %d' % len(train_triples))
-        if self.p.combine_seed_and_train_data and not self.p.use_cross_seed:
-            print('self.p.combine_seed_and_train_data:', self.p.combine_seed_and_train_data)
-            print('self.p.use_cross_seed:', self.p.use_cross_seed)
-            print('self.new_seed_trpIds:', len(self.new_seed_trpIds))
-            train_triples += self.new_seed_trpIds
-            # train_triples = self.new_seed_trpIds
 
         self.nentity = nentity
         self.nrelation = nrelation
@@ -153,7 +145,6 @@ class Train_Embedding_Model(Process):
 
         # combine the train triples and seed triples
         use_soft_learning = self.p.use_soft_learning
-        only_update_sim = self.p.only_update_sim
         # --------------------------------------------------
 
         kge_model = KGEModel(
@@ -233,17 +224,12 @@ class Train_Embedding_Model(Process):
         logging.info('single_negative_adversarial_sampling = %d' % self.p.single_negative_sample_size)
         logging.info('hidden_dim = %d' % self.p.hidden_dim)
         logging.info('single_gamma = %f' % self.p.single_gamma)
-        logging.info('negative_adversarial_sampling = %s' % str(self.p.negative_adversarial_sampling))
-        if self.p.negative_adversarial_sampling:
-            logging.info('adversarial_temperature = %f' % self.p.adversarial_temperature)
+        
         if self.p.use_cross_seed:
             logging.info('self.p.use_cross_seed = %f' % self.p.use_cross_seed)
-            logging.info('self.p.update_seed = %f' % self.p.update_seed)
-
             logging.info('self.p.max_steps = %f' % self.p.max_steps)
             logging.info('self.p.turn_to_seed = %f' % self.p.turn_to_seed)
             logging.info('self.p.seed_max_steps = %f' % self.p.seed_max_steps)
-            logging.info('self.p.update_seed_steps = %f' % self.p.update_seed_steps)
         else:
             logging.info('Do not use seeds ...')
 
@@ -271,7 +257,6 @@ class Train_Embedding_Model(Process):
                         seed_sim[i] = 1
                     print('seed_sim:', type(seed_sim), len(seed_sim), seed_sim[0:10])
                     print('do not use soft seed loss !')
-                print('only_update_sim:', only_update_sim)
                 seed_dataloader_head = DataLoader(
                     SeedDataset(seed_triples, self.web_seed_pair_list, nentity, nrelation,
                                 self.p.cross_negative_sample_size, 'head-batch',
@@ -315,71 +300,6 @@ class Train_Embedding_Model(Process):
                                                              np_seed_neg_dict, self.web_seed_pair_list,
                                                              rp_seed_neg_dict, self.rp_seed_pair)
                             training_logs.append(log)
-                        larger = step > self.p.update_seed_steps or step == self.p.update_seed_steps
-                        if self.p.update_seed and step % self.p.update_seed_steps == 0 and larger and step > 0:
-                            logging.info('#update seeds ---------------')
-
-                            folder = '../file/' + self.p.dataset + '/' + str(self.p.model) + '/'
-                            if not os.path.exists(folder):
-                                os.makedirs(folder)
-
-                            if only_update_sim:
-                                fname1 = folder + 'new_seed_triples_' + str(int(step / self.p.update_seed_steps)) + '_' \
-                                         + 'web_only_change_sim'
-                                fname2 = folder + 'new_seed_sim_' + str(int(step / self.p.update_seed_steps)) + '_' + \
-                                         'web_only_change_sim'
-                            else:
-                                fname1 = folder + 'new_seed_triples_' + str(
-                                    int(step / self.p.update_seed_steps)) + '_' + \
-                                         str(self.p.entity_threshold) + '_' + str(self.p.relation_threshold)
-                                fname2 = folder + 'new_seed_sim_' + str(int(step / self.p.update_seed_steps)) + '_' + \
-                                         str(self.p.entity_threshold) + '_' + str(self.p.relation_threshold)
-                            if not checkFile(fname1) or not checkFile(fname2):
-                                print('generate new seeds:', fname1)
-                                if only_update_sim:
-                                    seed_triples, seed_sim = pair2triples(self.web_seed_pair_list,
-                                                                          self.side_info.ent_list,
-                                                                          self.side_info.ent2id, self.side_info.id2ent,
-                                                                          self.side_info.ent2triple_id_list,
-                                                                          self.side_info.trpIds,
-                                                                          kge_model.entity_embedding,
-                                                                          cos_sim, is_cuda=True,
-                                                                          high_confidence=False)
-                                else:
-                                    seed_triples, seed_sim = kge_model.get_seeds(self.p, self.side_info, logging)
-                                print('seed_triples:', type(seed_triples), len(seed_triples), seed_triples[0:30])
-                                print('seed_sim:', type(seed_sim), len(seed_sim), seed_sim[0:30])
-                                pickle.dump(seed_triples, open(fname1, 'wb'))
-                                pickle.dump(seed_sim, open(fname2, 'wb'))
-                            else:
-                                print('load new seeds:', fname1)
-                                seed_triples = pickle.load(open(fname1, 'rb'))
-                                seed_sim = pickle.load(open(fname2, 'rb'))
-
-                            logging.info('#new seeds: %d' % len(seed_triples))
-                            seed_dataloader_head = DataLoader(
-                                SeedDataset(seed_triples, self.web_seed_pair_list, self.E_init, nentity, nrelation,
-                                            self.p.cross_negative_sample_size,
-                                            'head-batch',
-                                            seed_sim),
-                                batch_size=self.p.cross_batch_size,
-                                shuffle=True,
-                                num_workers=0,
-                                collate_fn=SeedDataset.collate_fn
-                            )
-                            seed_dataloader_tail = DataLoader(
-                                SeedDataset(seed_triples, self.web_seed_pair_list, self.E_init, nentity, nrelation,
-                                            self.p.cross_negative_sample_size,
-                                            'tail-batch',
-                                            seed_sim),
-                                batch_size=self.p.cross_batch_size,
-                                shuffle=True,
-                                num_workers=0,
-                                collate_fn=SeedDataset.collate_fn
-                            )
-                            self.seed_iterator = BidirectionalOneShotIterator(seed_dataloader_head,
-                                                                              seed_dataloader_tail)
-
                 if step >= warm_up_steps:
                     current_learning_rate = current_learning_rate / 10
                     logging.info('Change learning_rate to %f at step %d' % (current_learning_rate, step))

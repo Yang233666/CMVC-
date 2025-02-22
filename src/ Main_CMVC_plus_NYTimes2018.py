@@ -187,89 +187,64 @@ if __name__ == '__main__':
 
     parser.add_argument('--use_Entity_linking_dict', default=True)
     parser.add_argument('--input', default='entity', choices=['entity', 'relation'])
-
-    parser.add_argument('--use_Embedding_model', default=True)
-    parser.add_argument('--relation_view_seed_is_web', default=True)
-    parser.add_argument('--view_version', default=1.2)
-    parser.add_argument('--use_cluster_learning', default=False)
-    parser.add_argument('--use_cross_seed', default=True)
-    parser.add_argument('--use_soft_learning', default=False)
-
-    parser.add_argument('--update_seed', default=False)
-    parser.add_argument('--only_update_sim', default=True)
-
-    parser.add_argument('--use_bert_update_seeds', default=False)
-    parser.add_argument('--use_new_embedding', default=False)
-    parser.add_argument('--max_steps', default=50000, type=int)
-    parser.add_argument('--turn_to_seed', default=2000, type=int)
-    parser.add_argument('--seed_max_steps', default=1000, type=int)
-    parser.add_argument('--update_seed_steps', default=6000, type=int)
-
-    parser.add_argument('--get_new_cross_seed', default=True)
+    parser.add_argument('--cuda', action='store_true', help='use GPU', default=True)
     parser.add_argument('--entity_threshold', dest='entity_threshold', default=0.9, help='entity_threshold')
     parser.add_argument('--relation_threshold', dest='relation_threshold', default=0.95, help='relation_threshold')
 
-    parser.add_argument('--use_context', default=True)
-    parser.add_argument('--use_attention', default=True)
-    parser.add_argument('--replace_h', default=True)
-    parser.add_argument('--sentence_delete_stopwords', default=True)
-    parser.add_argument('--use_first_sentence', default=True)
-    parser.add_argument('--use_BERT', default=True)
-    parser.add_argument('--step_0_use_hac', default=False)
-    parser.add_argument('--cuda', action='store_true', help='use GPU', default=True)
+    # fact view
+    parser.add_argument('--use_Embedding_model', default=True)
     parser.add_argument('--do_train', action='store_true', default=True)
-    parser.add_argument('--evaluate_train', action='store_true', help='Evaluate on training data', default=False)
-    parser.add_argument('--save_path', default='../output', type=str)
+    parser.add_argument('--fact_cuda', default=0)
+
     parser.add_argument('--model', default='TransE', type=str)
+    parser.add_argument('-embed_dims', dest='embed_dims', default=300, type=int, help='Embedding dimension')
+    parser.add_argument('-lr', '--learning_rate', default=0.0001, type=float)
+
+    parser.add_argument('--use_cross_seed', default=True)
+    parser.add_argument('--use_soft_learning', default=False)
+    parser.add_argument('-cpu', '--cpu_num', default=12, type=int)
+    parser.add_argument('-init', '--init_checkpoint', default=None, type=str)
+
+    parser.add_argument('--fact_neg_num', default=1)
+    parser.add_argument('--fact_step_size', default=1024)
+    parser.add_argument('--fact_mlp_dim', default=50)
+    parser.add_argument('--conbine_loss', type=bool, default=True)
+
     parser.add_argument('-de', '--double_entity_embedding', action='store_true', default=False)
     parser.add_argument('-dr', '--double_relation_embedding', action='store_true', default=False)
-
     parser.add_argument('-n1', '--single_negative_sample_size', default=32, type=int)
     parser.add_argument('-n2', '--cross_negative_sample_size', default=40, type=int)
     parser.add_argument('-d', '--hidden_dim', default=300, type=int)
     parser.add_argument('-g1', '--single_gamma', default=12.0, type=float)
     parser.add_argument('-g2', '--cross_gamma', default=0.0, type=float)
-    parser.add_argument('-adv', '--negative_adversarial_sampling', action='store_true', default=True)
-    parser.add_argument('-a', '--adversarial_temperature', default=1.0, type=float)
     parser.add_argument('-b1', '--single_batch_size', default=5120, type=int)
     parser.add_argument('-b2', '--cross_batch_size', default=5120, type=int)
     parser.add_argument('-r', '--regularization', default=0.0, type=float)
-    parser.add_argument('--test_batch_size', default=4, type=int, help='valid/test batch size')
     parser.add_argument('--uni_weight', action='store_true',
                         help='Otherwise use subsampling weighting like in word2vec', default=True)
-
-    parser.add_argument('-lr', '--learning_rate', default=0.0001, type=float)
-    parser.add_argument('-cpu', '--cpu_num', default=12, type=int)
-    parser.add_argument('-init', '--init_checkpoint', default=None, type=str)
-    parser.add_argument('--warm_up_steps', default=None, type=int)
 
     parser.add_argument('--save_checkpoint_steps', default=10000, type=int)
     parser.add_argument('--valid_steps', default=10000, type=int)
     parser.add_argument('--log_steps', default=100, type=int, help='train log every xx steps')
     parser.add_argument('--test_log_steps', default=1000, type=int, help='valid/test log every xx steps')
+    parser.add_argument('--max_steps', default=50000, type=int)
+    parser.add_argument('--turn_to_seed', default=2000, type=int)
+    parser.add_argument('--seed_max_steps', default=1000, type=int)
+    parser.add_argument('--warm_up_steps', default=None, type=int)
 
-    parser.add_argument('--nentity', type=int, default=0, help='DO NOT MANUALLY SET')
-    parser.add_argument('--nrelation', type=int, default=0, help='DO NOT MANUALLY SET')
-    parser.add_argument('-embed_dims', dest='embed_dims', default=300, type=int, help='Embedding dimension')
-
-    parser.add_argument('--fact_neg_num', default=1)
-    parser.add_argument('--fact_step_size', default=1024)
-    parser.add_argument('--fact_mlp_dim', default=50)
-    parser.add_argument('--fact_cuda', default=0)
+    # context view
+    parser.add_argument('--use_context', default=True)
+    parser.add_argument('--replace_h', default=True)
+    parser.add_argument('--sentence_delete_stopwords', default=True)
+    parser.add_argument('--use_BERT', default=True)
     parser.add_argument('--context_cuda', default=1)
-    parser.add_argument('--conbine_loss', type=bool, default=True)
-    # word2vec and iteration hyper-parameters
-    parser.add_argument('-retrain_literal_embeds', dest='retrain_literal_embeds', default=True,
-                        help='retrain_literal_embeds')
 
     # Clustering hyper-parameters
     parser.add_argument('-linkage', dest='linkage', default='complete', choices=['complete', 'single', 'average'],
                         help='HAC linkage criterion')
     parser.add_argument('-metric', dest='metric', default='cosine',
                         help='Metric for calculating distance between embeddings')
-    parser.add_argument('-num_canopy', dest='num_canopy', default=1, type=int,
-                        help='Number of caponies while clustering')
-    parser.add_argument('-true_seed_num', dest='true_seed_num', default=2361, type=int)
+    parser.add_argument('--step_0_use_hac', default=False)
     args = parser.parse_args()
 
     if 'NYTimes2018' in args.dataset:

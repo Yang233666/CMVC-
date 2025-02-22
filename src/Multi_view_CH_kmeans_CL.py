@@ -1,6 +1,5 @@
 import warnings
 import numpy as np
-# np.random.seed(0)
 from joblib import Parallel, delayed
 from warnings import simplefilter
 
@@ -9,11 +8,8 @@ simplefilter(action='ignore', category=FutureWarning)
 from src.utils import cosine_distance, CE, BhattacharyyaDistance
 from src.test_performance import HAC_getClusters, cluster_test
 
-# from sklearn.cluster import _k_means
 from sklearn.cluster import _k_means_fast as _k_means
-# from sklearn.cluster._k_means import (
 from sklearn.cluster._kmeans import (
-    # from sklearn.cluster.k_means_ import (
     _check_sample_weight,
     _init_centroids,
     _labels_inertia,
@@ -187,10 +183,6 @@ def multi_view_labels_inertia_precompute_dense(X_view_1, X_view_2, centers_view_
     view1_ch = ch_cluster(X_view_1, labels_view_1, centers_view_1)
     view2_ch = ch_cluster(X_view_2, labels_view_2, centers_view_2)
 
-    # from sklearn.metrics import calinski_harabasz_score
-    # view1_ch = calinski_harabasz_score(X_view_1, labels_view_1)
-    # view2_ch = calinski_harabasz_score(X_view_2, labels_view_2)
-
     weight = view1_ch / (view1_ch + view2_ch)
 
     for i in range(n_samples):
@@ -204,7 +196,6 @@ def multi_view_labels_inertia_precompute_dense(X_view_1, X_view_2, centers_view_
             view_1_cos_dis = cosine_distance(x_view_1, m_j_view_1)
             view_2_cos_dis = cosine_distance(x_view_2, m_j_view_2)
             dis_j = weight[j] * view_1_cos_dis + (1 - weight[j]) * view_2_cos_dis
-            # dis_j = weight * view_1_cos_dis + (1 - weight) * view_2_cos_dis
             if dis_j < dis_min:
                 dis_min = dis_j
                 dis_index = j
@@ -318,10 +309,6 @@ def multi_view_spherical_kmeans_single_lloyd(
     centers_view_2 = _init_centroids(
         X_view_2, n_clusters, init, random_state=random_state, x_squared_norms=x_view_2_squared_norms
     )
-    # centers_view_2 = multi_view_test(X_view_1, X_view_2, n_clusters, init, sample_weight,
-    #                                  x_view_1_squared_norms, x_view_2_squared_norms,
-    #                                  random_state, precompute_distances, p,
-    #                                  side_info, true_ent2clust, true_clust2ent)
 
     if verbose:
         print("Initialization complete")
@@ -329,11 +316,6 @@ def multi_view_spherical_kmeans_single_lloyd(
     # Allocate memory to store the distances for each sample to its
     # closer center for reallocation in case of ties
     distances = np.zeros(shape=(X_view_2.shape[0],), dtype=X_view_2.dtype)
-    # print('distances:', type(distances), distances.shape, distances.astype, distances)
-    # import time
-    # real_time = time.strftime("%Y_%m_%d") + ' ' + time.strftime("%H:%M:%S")
-    # print('init time:', real_time)
-    # exit()
 
     x_list = [X_view_1, X_view_2]
     x_squared_norms_list = [x_view_1_squared_norms, x_view_2_squared_norms]
@@ -342,9 +324,6 @@ def multi_view_spherical_kmeans_single_lloyd(
     if p.step_0_use_hac:
         cluster_threshold_real = 0.33
         labels, clusters_center = HAC_getClusters(p, X_view_2, cluster_threshold_real)
-        # print('labels:', type(labels), len(labels), labels)
-        # labels_2 = list(set(labels))
-        # print('labels_2:', len(labels_2), labels_2)
         cluster_predict_list = list(labels)
         print('E step view 2 use HAC:')
         cluster_test(p, side_info, cluster_predict_list, true_ent2clust, true_clust2ent, True)
@@ -611,7 +590,6 @@ def multi_view_spherical_k_means(
                 tol=tol,
                 x_view_1_squared_norms=x_view_1_squared_norms,
                 x_view_2_squared_norms=x_view_2_squared_norms,
-                # random_state=random_state,
                 random_state=seeds[it],
                 p=p,
                 side_info=side_info,
@@ -682,8 +660,6 @@ def multi_view_spherical_k_means(
         best_label_view = lable_view[best]
 
     print(best_inertia)
-    import pandas as pd
-    # pd.DataFrame(ans, columns=['inertia_', 'CE', 'BhattacharyyaDistance', 'F1']).to_excel('ans_opiec_relation.xlsx')
 
     if return_n_iter:
         return best_labels, best_inertia, best_n_iter, best_center_view, best_label_view
